@@ -1,0 +1,11 @@
+{
+	"SQLConfig": {
+		"Driver": "mysql",
+		"Host": "localhost:3306",
+		"Database": "test_db",
+		"User": "test_user",
+		"Password": "" // leave blank to use env var SQL_USER_PASSWORD
+	},
+	"MigrationDirectory": "./migrations",
+	"RollbacksDirectory": "./migrations/rollbacks"
+}
