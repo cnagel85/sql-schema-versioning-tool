@@ -64,7 +64,7 @@ FILES
 
 
 AUTHOR
-	Corey Nagel <corey@illfonic.com>
+	Corey Nagel <coreyelliotnagel@gmail.com>
 
 EXAMPLE
 
