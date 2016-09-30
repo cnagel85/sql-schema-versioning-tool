@@ -1,11 +1,39 @@
 {
-	"SQLConfig": {
-		"Driver": "mysql",
-		"Host": "localhost:3306",
-		"Database": "test_db",
-		"User": "test_user",
-		"Password": "" // leave blank to use env var SQL_USER_PASSWORD
-	},
-	"MigrationDirectory": "./migrations",
+	"Environments": [
+		{
+			"Name": "test",
+			"SQLConfig": {
+				"Driver": "mysql",
+				"Host": "localhost",
+				"Port": "3306",
+				"Database": "test_db",
+				"User": "test_user",
+				"Password": ""
+			}
+		},
+		{
+			"Name": "dev",
+			"SQLConfig": {
+				"Driver": "mysql",
+				"Host": "localhost",
+				"Port": "3306",
+				"Database": "test_db",
+				"User": "test_user",
+				"Password": ""
+			}
+		},
+		{
+			"Name": "staging",
+			"SQLConfig": {
+				"Driver": "mysql",
+				"Host": "localhost",
+				"Port": "3306",
+				"Database": "test_db",
+				"User": "test_user",
+				"Password": ""
+			}
+		}
+	],
+	"MigrationsDirectory": "./migrations",
 	"RollbacksDirectory": "./migrations/rollbacks"
 }
