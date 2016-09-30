@@ -12,14 +12,14 @@ _DB = 0 # placeholder value for db connection global
 # MIGRATIONs_DIR = './migrations'
 # ROLLBACKS_DIR = MIGRATIONs_DIR + '/rollbacks'
 _INITIAL_MIGRATION_TEXT = """BEGIN TRANSACTION;
-CREATE TABLE schema_migrations ("version" varchar(255) NOT NULL PRIMARY KEY);
+CREATE TABLE schema_migrations (version varchar(255) NOT NULL, PRIMARY KEY (version));
+INSERT INTO schema_migrations VALUES('%s');
 -- DO NOT CHANGE ABOVE THIS LINE
 -- Place Migration statements below
 
 
 
 -- DO NOT CHANGE BELOW THIS LINE
-INSERT INTO schema_migrations VALUES('%s');
 COMMIT;
 """
 _NEW_MIGRATION_TEXT = """BEGIN TRANSACTION;
