@@ -3,7 +3,9 @@ import os, shlex, subprocess, getopt, sys, json, yaml, re, datetime, glob
 # import mysql.connector as mariadb
 import MySQLdb
 
-_CONFIG_FILE_PATH = "migration_config.json"
+_DIR = os.path.dirname(os.path.realpath(__file__))
+
+_CONFIG_FILE_PATH = "%s/migration_config.yml" % _DIR
 _ENVIRONMENT = "dev" # default is dev
 _ENV_DATA = {}
 _CONFIG = {}
@@ -12,14 +14,14 @@ _DB = 0 # placeholder value for db connection global
 # MIGRATIONs_DIR = './migrations'
 # ROLLBACKS_DIR = MIGRATIONs_DIR + '/rollbacks'
 _INITIAL_MIGRATION_TEXT = """BEGIN TRANSACTION;
-CREATE TABLE schema_migrations (version varchar(255) NOT NULL, PRIMARY KEY (version));
-INSERT INTO schema_migrations VALUES('%s');
+CREATE TABLE schema_migrations ("version" varchar(255) NOT NULL PRIMARY KEY);
 -- DO NOT CHANGE ABOVE THIS LINE
 -- Place Migration statements below
 
 
 
 -- DO NOT CHANGE BELOW THIS LINE
+INSERT INTO schema_migrations VALUES('%s');
 COMMIT;
 """
 _NEW_MIGRATION_TEXT = """BEGIN TRANSACTION;
@@ -100,7 +102,7 @@ def validate_environment(env):
 def create_initial_migration():
 	if check_for_initial_migration():
 		print "initial migration already exists"
-		sys.exit(2)
+		sys.exit(1)
 
 	# Create initial migration file
 	create_migration_file(generate_filename('initial'), _INITIAL_MIGRATION_TEXT)
@@ -108,7 +110,7 @@ def create_initial_migration():
 def create_new_migration():
 	if not check_for_initial_migration():
 		print "must create initial igration first"
-		sys.exit(2)
+		sys.exit(1)
 
 	# Create New Migration File
 	filename = generate_filename("")
@@ -117,7 +119,7 @@ def create_new_migration():
 
 def create_migration_file(filename, filetext):
 	print "Creating SQL Migration file: ", filename
-	migration_dir = _CONFIG['MigrationsDirectory']
+	migration_dir = get_migrations_dir()
 	# Create Migration Directory if it doesnt exist
 	if not os.path.exists(migration_dir):
 		os.makedirs(migration_dir)
@@ -130,7 +132,7 @@ def create_rollback_file(migration_filename):
 	filename = migration_filename.replace('.sql','_rollback.sql')
 	print "Creating SQL Rollback Migration file: ", filename
 
-	rollbacks_dir = _CONFIG['RollbacksDirectory']
+	rollbacks_dir = get_rollbacks_dir()
 	# Create Rollback Migrations Directory if it doesnt exist
 	if not os.path.exists(rollbacks_dir):
 		os.makedirs(rollbacks_dir)
@@ -142,12 +144,12 @@ def create_rollback_file(migration_filename):
 
 def check_for_initial_migration():
     try:
-    	for file in glob.glob(_CONFIG['MigrationsDirectory']+"/*.sql"):
+    	for file in glob.glob(get_migrations_dir()+"/*.sql"):
     		if 'initial' in file:
     			return True
     except IOError as e:
     	print "failed migration files check"
-    	sys.exit(2)
+    	sys.exit(1)
     return False
 
 
@@ -185,7 +187,7 @@ def run_rollback(version=''):
 	if (len(migrated) < 2 or migrated[-1] == version):
 		print "Rollback of initial migration requested"
 		clean_database()
-		sys.exit(1)
+		sys.exit(0)
 
 	toRollback = []
 	if version == '':
@@ -193,7 +195,7 @@ def run_rollback(version=''):
 	else:
 		if version not in migrated:
 			print "[ERROR] Cannot find migration %s in migrated" % version
-			sys.exit(2)
+			sys.exit(1)
 		for m in migrated:
 			toRollback.append(m)
 			if m == version:
@@ -207,7 +209,7 @@ def run_rollback(version=''):
 		else:
 			print "Rollback of initial migration requested"
 			clean_database()
-			sys.exit(1)
+			sys.exit(0)
 
 def get_version():
 	migrated = get_current_migrated_versions(get_db_connection())
@@ -234,21 +236,27 @@ def get_current_migrated_versions(db=None):
 	print "Found migration versions: %s" % versions
 	return versions
 
+def get_migrations_dir():
+	return _CONFIG['MigrationsDirectory'].replace("{{SCRIPT_DIRECTORY}}", _DIR)
+
 def get_migrations():
     try:
-    	return sorted(glob.glob(_CONFIG['MigrationsDirectory']+"/*.sql"))
+    	return sorted(glob.glob(get_migrations_dir()+"/*.sql"))
     except IOError as e:
     	print "no migration files found"
-    	sys.exit(2)
+    	sys.exit(1)
+
+def get_rollbacks_dir():
+	return _CONFIG['RollbacksDirectory'].replace("{{SCRIPT_DIRECTORY}}", _DIR)
 
 def get_rollbacks():
     try:
-    	files = sorted(glob.glob(_CONFIG['RollbacksDirectory']+"/*.sql"))
+    	files = sorted(glob.glob(get_rollbacks_dir()+"/*.sql"))
     	files.reverse()
     	return files
     except IOError as e:
     	print "no migration files found"
-    	sys.exit(2)
+    	sys.exit(1)
 
 def extract_migration_version(filename):
 	return filename.split("/")[-1].split("_")[0]
@@ -260,7 +268,7 @@ def execute_sql_file(filename):
 	try:
 		cursor = _DB.cursor()
 		for line in open(filename, 'r'):
-			line = line.strip()
+			# line = line.strip()
 			if re.match('BEGIN TRANSACTION;', line):
 				continue
 			if re.match('COMMIT;', line):
@@ -268,7 +276,7 @@ def execute_sql_file(filename):
 			if (re.match(r'--', line) or len(line) == 0):
 				continue
 			if not re.search(r'[^-;]+;', line):
-				statement+= line + " "
+				statement += line #+ " "
 			else:
 				statement += line
 				# print "\n\n[DEBUG] Executing SQL statement:\n\t%s" % statement
@@ -292,20 +300,35 @@ def create_database():
 	dbConn = MySQLdb.connect(host=sql_config['Host'], port=sql_config['Port'], user=sql_config['User'], passwd=sql_config['Password'])
 
 	print "Creating database "+database
-	dbConn.cursor().execute("CREATE DATABASE %s;" % database)
-	dbConn.close()
+	try:
+		dbConn.cursor().execute("CREATE DATABASE %s;" % database)
+		dbConn.close()
+	except MySQLdb.Error as e:
+		dbConn.close()
+		if e[0] != 1007:
+			raise
+		else:
+			print "database already exists"
 
 def drop_database():
 	sql_config = _ENV_DATA['SQLConfig']
 	database = sql_config['Database']
-	if raw_input("[WARNING] Are you sure you want to drop database with name %s? " % database) != 'yes':
-		print "Exiting without dropping database"
-		sys.exit(1)
+	if _ENVIRONMENT != "test":
+		if raw_input("[WARNING] Are you sure you want to drop database with name %s? " % database) != 'yes':
+			print "Exiting without dropping database"
+			sys.exit(0)
 
 	dbConn = MySQLdb.connect(host=sql_config['Host'], port=sql_config['Port'], user=sql_config['User'], passwd=sql_config['Password'])
 	print "Dropping database "+database
-	dbConn.cursor().execute("DROP DATABASE %s;" % database)
-	dbConn.close()
+	try:
+		dbConn.cursor().execute("DROP DATABASE %s;" % database)
+		dbConn.close()
+	except MySQLdb.Error as e:
+		dbConn.close()
+		if e[0] != 1008:
+			raise
+		else:
+			print "database does not exist"
 
 def clean_database():
 	print "Attempting to drop database"
@@ -320,13 +343,13 @@ if __name__ == '__main__':
 		opts, args = getopt.getopt(sys.argv[1:], "he:v:", long_args)
 	except getopt.GetoptError:
 		print "Opt Err : " + getopt.GetoptError
-		sys.exit(2)
+		sys.exit(1)
 
 	version = ''
 	for opt, arg in opts:
 		if opt in ('-h','--help'):
 			usage()
-			sys.exit(1)
+			sys.exit(0)
 		if opt in ('-e', '--environment'):
 			_ENVIRONMENT = validate_environment(arg)
 		if opt in ('-v','--version'):
@@ -340,22 +363,22 @@ if __name__ == '__main__':
 	for cmd in args:
 		if cmd in ("initial"):
 			create_initial_migration()
-			sys.exit(1)
+			sys.exit(0)
 		if cmd in ("new"):
 			create_new_migration()
-			sys.exit(1)
+			sys.exit(0)
 		if cmd in ("db:version"):
 			get_version()
-			sys.exit(1)
+			sys.exit(0)
 		if cmd in ("db:create"):
 			create_database()
-			sys.exit(1)
+			sys.exit(0)
 		if cmd in ("db:drop"):
 			drop_database()
-			sys.exit(1)
+			sys.exit(0)
 		if cmd in ("db:clean"):
 			clean_database()
-			sys.exit(1)
+			sys.exit(0)
 		if cmd in ("db:migrate"):
 			migrate = True
 		if cmd in ("db:rollback"):
@@ -364,10 +387,10 @@ if __name__ == '__main__':
 	_DB = get_db_connection()
 	if migrate:
 		run_migration()
-		sys.exit(1)
+		sys.exit(0)
 	if rollback:
 		run_rollback(version)
-		sys.exit(1)
+		sys.exit(0)
 
 
 
