@@ -213,7 +213,10 @@ def run_rollback(version=''):
 
 def get_version():
 	migrated = get_current_migrated_versions(get_db_connection())
-	print "Current migration version: "+ migrated[-1]
+	if len(migrated) > 0 :
+		print "Current migration version: "+ migrated[-1]
+	else:
+		print "No version data in database"
 
 def get_current_migrated_versions(db=None):
 	if db == None:
