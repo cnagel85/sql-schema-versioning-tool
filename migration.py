@@ -14,7 +14,7 @@ _DB = 0 # placeholder value for db connection global
 # MIGRATIONs_DIR = './migrations'
 # ROLLBACKS_DIR = MIGRATIONs_DIR + '/rollbacks'
 _INITIAL_MIGRATION_TEXT = """BEGIN TRANSACTION;
-CREATE TABLE schema_migrations ("version" varchar(255) NOT NULL PRIMARY KEY);
+CREATE TABLE schema_migrations (version varchar(255) NOT NULL, PRIMARY KEY (version));
 -- DO NOT CHANGE ABOVE THIS LINE
 -- Place Migration statements below
 
@@ -48,55 +48,110 @@ COMMIT;
 
 DOC = """\
 NAME
+	SQL Schema Migration Tool
 
 SYNOPSYS
+	A tool for tracking and updating database schema versions inspired by
+	Ruby on Rails database migrations.
 
 DESCRIPTION
 
+
 NOTICE
+	Currently supports mysql and mariadb only
+	requires yaml and MySQLdb python libraries
 
 OPTIONS
 	-h help
 		show this help documentation
 
-COMMANDS
+	-c config
+		specifies the path to a YAML config file default is migration_config.yml
+		in the same directory as this script
 
+	-e environment
+		specifies which environment from the config file to use
+
+	-v version
+		specifies a migration to rollback to for db:rollback
+
+COMMANDS
+	initial
+		creates a migrations folder in the location specified by the config
+		and creates an initial migration sql file
+	new
+		creates a new migration sql file in the migrations directory and a
+		corresponding rollback sql file
+
+	db:[command]
+		the following db commands are run using the database specified in the
+		config file
+
+		create
+			creates an empty database if none exists
+
+		drop
+			drops the database
+
+		clean
+			drops the current database and creates a new empty database
+
+		version
+			lists teh migration version of the database in the config file
+
+		migrate
+			runs all database migrations in order
+
+		rollback
+			runs the rollback sql file of the most recent migration or can rollback
+			to a specific version if -v is passed
 
 FILES
-
+	migration_config.yml
+		YAML config file conforming to migration_config.yml.example
+		Can be overridden with -c or --config=
 
 AUTHOR
 	Corey Nagel <coreyelliotnagel@gmail.com>
 
 EXAMPLE
-
+	python migration.py -e test db:create
 """
 
 def usage():
 	print DOC
 
+def set_config_file_path(filepath):
+	print "overriding config filepath with [%s]" % filepath
+	global _CONFIG_FILE_PATH
+	_CONFIG_FILE_PATH = filepath
+
 def load_config(filename):
-	print "Loading config file [%s]..." % filename
+	print "Loading YAML config file [%s]..." % filename
+	print filename
 	with open(filename, 'r') as f:
-		if 'json' in filename:
-				return json.load(f)
-		elif 'yml' in filename:
-				return yaml.load(f)
+		return yaml.load(f)
 
 def get_env_config(env):
 	return next(e for e in _CONFIG["Environments"] if e["Name"] == env)
 
 def validate_environment(env):
-	envs = [str(e["Name"]) for e in _CONFIG["Environments"]]
-	if env not in envs:
-		print "Not a valid environment, environment must be in %s" % envs
-		sys.exit(2)
-	if env not in ("test", "dev"):
-		msg = "Are you sure you want to use the '%s' environment [y/N]?" % env
-		resp = raw_input(msg)
-		if resp.lower() not in ('y', 'yes'):
-			print "Non-Dev Environment not confirmed"
+	if len(env) == 0:
+		env = _CONFIG["DefaultEnvironment"]
+		print "Running in default environment [%s]" % env
+	else:
+		envs = [str(e["Name"]) for e in _CONFIG["Environments"]]
+		if env not in envs:
+			print "Not a valid environment, environment must be in %s" % envs
 			sys.exit(2)
+		if env not in ("test", "dev"):
+			msg = "Are you sure you want to use the '%s' environment [yes/No]?" % env
+			resp = raw_input(msg)
+			if resp.lower() not in ('yes'):
+				print "Non-Dev Environment not confirmed"
+				sys.exit(2)
+		print "Running in environment [%s]" % env
+
 	return env
 
 def create_initial_migration():
@@ -340,29 +395,34 @@ def clean_database():
 	create_database()
 
 if __name__ == '__main__':
-	_CONFIG = load_config(_CONFIG_FILE_PATH)
 	try:
-		long_args = ["help", "environment=", "version="]
-		opts, args = getopt.getopt(sys.argv[1:], "he:v:", long_args)
+		long_args = ["help", "config=", "environment=", "version="]
+		opts, args = getopt.getopt(sys.argv[1:], "hc:e:v:", long_args)
 	except getopt.GetoptError:
 		print "Opt Err : " + getopt.GetoptError
 		sys.exit(1)
 
 	version = ''
+	env = ''
 	for opt, arg in opts:
 		if opt in ('-h','--help'):
 			usage()
 			sys.exit(0)
+		if opt in ('-c','--config'):
+			set_config_file_path(arg)
 		if opt in ('-e', '--environment'):
-			_ENVIRONMENT = validate_environment(arg)
-		if opt in ('-v','--version'):
-			version = arg.strip()
+			env = arg
+		if opt in ('-v', '--version'):
+			version = arg
 
-	migrate, rollback = False, False
-
-	print "Running in environment [%s]" % _ENVIRONMENT
+	# load config and environment data
+	print _CONFIG_FILE_PATH
+	_CONFIG = load_config(_CONFIG_FILE_PATH)
+	_ENVIRONMENT = validate_environment(env)
 	_ENV_DATA = get_env_config(_ENVIRONMENT)
 
+	# parse commands
+	migrate, rollback = False, False
 	for cmd in args:
 		if cmd in ("initial"):
 			create_initial_migration()
@@ -387,6 +447,7 @@ if __name__ == '__main__':
 		if cmd in ("db:rollback"):
 			rollback = True
 
+	# run command
 	_DB = get_db_connection()
 	if migrate:
 		run_migration()

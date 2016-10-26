@@ -1,0 +1,16 @@
+---
+
+# Available Hosting Environments
+Environments:
+- Name: test
+  SQLConfig:
+    Driver: mysql
+    Host: localhost
+    Port: 3306
+    Database: test_db
+    User: test_user
+    Password: password
+
+DefaultEnvironment: test
+MigrationsDirectory: ./test/mysql/migrations
+RollbacksDirectory: ./test/mysql/migrations/rollbacks

@@ -1,0 +1,16 @@
+---
+
+# Available Hosting Environments
+Environments:
+- Name: test
+  SQLConfig:
+    Driver: postgres
+    Host: localhost
+    Port: 5432
+    Database: test_db
+    User: test_user
+    Password: password
+
+DefaultEnvironment: test
+MigrationsDirectory: ./test/postgres/migrations
+RollbacksDirectory: ./test/postgres/migrations/rollbacks
