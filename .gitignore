@@ -1,4 +1,6 @@
 migration_config.yml
 
+lib/**/*.pyc
+
 ./migrations
 test/**/*.yml
