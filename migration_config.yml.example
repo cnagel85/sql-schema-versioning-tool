@@ -1,0 +1,33 @@
+---
+
+# Available Hosting Environments
+Environments:
+- Name: test
+  SQLConfig:
+    Driver: mysql
+    Host: localhost
+    Port: 3306
+    Database: test_db
+    User: test_user
+    Password: password
+- Name: dev
+  SQLConfig:
+    Driver: mysql
+    Host: localhost
+    Port: 3306
+    Database: dev_db
+    User: test_user
+    Password: password
+
+- Name: staging
+  SQLConfig:
+    Driver: mysql
+    Host: localhost
+    Port: 3306
+    Database: staging_db
+    User: test_user
+    Password: password
+
+MigrationsDirectory: ./migrations
+RollbacksDirectory: ./migrations/rollbacks
+
