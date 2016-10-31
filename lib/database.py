@@ -45,7 +45,7 @@ def create_database():
 		try:
 			dbConn.cursor().execute("CREATE SCHEMA public;")
 			dbConn.cursor().execute("GRANT ALL ON SCHEMA public TO postgres;")
-			dbConn.cursor().execute("GRANT ALL ON SCHEMA public TO public;")
+			dbConn.cursor().execute("GRANT ALL ON SCHEMA public TO %s;" % sqlConfig['User'])
 			dbConn.close()
 		except psycopg2.Error as e:
 			dbConn.close()
