@@ -1,17 +1,23 @@
 #!/usr/bin/env python
 
-import os, yaml
+import sys, os, yaml
 
-_DIR = os.path.dirname(os.path.realpath(__file__))
-_CONFIG_FILE_PATH = "%s/migration_config.yml" % _DIR
+_SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+_CONFIG_FILE_PATH = "{{SCRIPT_DIRECTORY}}/migration_config.yml"
 _CONFIG = {}
 _ENVIRONMENT = "dev"
 _ENV_DATA = None
 
 
-def get_filepath():
-	return _CONFIG_FILE_PATH
+def set_script_directory(directory):
+	global _SCRIPT_DIR
+	_SCRIPT_DIR = directory
 
+def get_script_directory():
+	return _SCRIPT_DIR
+
+def get_filepath():
+	return _CONFIG_FILE_PATH.replace("{{SCRIPT_DIRECTORY}}", _SCRIPT_DIR)
 
 def get():
 	return _CONFIG
@@ -25,8 +31,8 @@ def set_filepath(filepath):
 
 def load_config():
 	global _CONFIG
-	print "Loading YAML config file [%s]..." % _CONFIG_FILE_PATH
-	with open(_CONFIG_FILE_PATH, 'r') as f:
+	print "Loading YAML config file [%s]..." % get_filepath()
+	with open(get_filepath(), 'r') as f:
 		_CONFIG = yaml.load(f)
 
 
@@ -52,10 +58,9 @@ def validate_environment(env):
 			print "Not a valid environment, environment must be in %s" % envs
 			sys.exit(2)
 		if env not in ("test", "dev"):
-			msg = "Are you sure you want to use the '%s' environment [yes/No]?" % env
-			resp = raw_input(msg)
-			if resp.lower() not in ('yes'):
-				print "Non-Dev Environment not confirmed"
+			msg = "Are you sure you want to use the '%s' environment [yes/No]? " % env
+			if not confirm(msg, "yes"):
+				print "Environment not confirmed"
 				sys.exit(2)
 		print "Running in environment [%s]" % env
 
@@ -77,13 +82,17 @@ def default_env():
 
 
 def get_migrations_dir():
-	return _CONFIG['MigrationsDirectory'].replace("{{SCRIPT_DIRECTORY}}", _DIR)
+	return _CONFIG['MigrationsDirectory'].replace("{{SCRIPT_DIRECTORY}}", _SCRIPT_DIR)
 
 
 def get_rollbacks_dir():
-	return _CONFIG['RollbacksDirectory'].replace("{{SCRIPT_DIRECTORY}}", _DIR)
+	return _CONFIG['RollbacksDirectory'].replace("{{SCRIPT_DIRECTORY}}", _SCRIPT_DIR)
 
 
 class ConfigError(Exception):
 	def __init__(self, message):
 		self.message = message
+
+
+def confirm(msg, confirm_response):
+	return raw_input(msg).lower() == confirm_response.lower()

@@ -32,10 +32,10 @@ def create_database():
 			dbConn.close()
 		except MySQLdb.Error as e:
 			dbConn.close()
-			if e[0] != 1007:
-				raise
-			else:
+			if e[0] == 1007:
 				print "database already exists"
+			else:
+				raise
 
 	elif sqlConfig["Driver"] == "postgres":
 		dbConn = psycopg2.connect(host=sqlConfig['Host'], port=sqlConfig['Port'], user=sqlConfig['User'], password=sqlConfig['Password'], database=database)
@@ -49,10 +49,11 @@ def create_database():
 			dbConn.close()
 		except psycopg2.Error as e:
 			dbConn.close()
-			print e.pgcode, e.pgerror
-			raise
-			# if e.pgcode!= "42P01":
-			# 	raise
+			if e.pgcode == "42P06":
+				print "database(public schema) already exists"
+			else:
+				print e.pgcode, e.pgerror
+				raise
 
 def drop_database():
 	env = config.get_env()
@@ -60,7 +61,8 @@ def drop_database():
 
 	database = sqlConfig['Database']
 	if env["Name"] != "test":
-		if raw_input("[WARNING] Are you sure you want to drop database with name %s? " % database) != 'yes':
+		msg = "[WARNING] Are you sure you want to drop[all data will be lost] database with name %s [yes/No]? " % database
+		if not config.confirm(msg, 'yes'):
 			print "Exiting without dropping database"
 			sys.exit(0)
 
@@ -168,7 +170,7 @@ def run_migration():
 
 	migrated = get_current_migrated_versions(db)
 	# print migrated
-	for file in get_migrations():
+	for file in get_migrations_files():
 		if extract_migration_version(file) not in migrated:
 			execute_sql_file(db, file)
 
@@ -176,26 +178,29 @@ def run_rollback(version=''):
 	db = get_db_connection()
 
 	migrated = get_current_migrated_versions(db)
+	if len(migrated) == 0:
+		print "no migrations to rollback"
+		return
 	migrated.reverse()
-	if (len(migrated) < 2 or migrated[-1] == version):
-		print "Rollback of initial migration requested"
-		clean_database()
-		sys.exit(0)
 
-	toRollback = []
+	# confirm rollback version exists
 	if version == '':
-		toRollback.append(migrated[0])
-	else:
-		if version not in migrated:
-			print "Cannot find migration %s in migrated" % version
-			raise DBError("Migration Not Found")
-		for m in migrated:
-			toRollback.append(m)
-			if m == version:
-				break
+		version = migrated[0]
+	elif version not in migrated:
+		print "Cannot find migration %s in migrated" % version
+		raise DBError("Migration Not Found")
+
+	# get migrations to rollback
+	toRollback = []
+	for m in migrated:
+		toRollback.append(m)
+		if m == version:
+			break
+
+	# rollback each migration in descending order
 	for rVersion in toRollback:
 		if rVersion != migrated[-1]:
-			for file in get_rollbacks():
+			for file in get_rollback_files():
 				if rVersion in file:
 					execute_sql_file(db, file)
 					break
@@ -237,7 +242,7 @@ def get_current_migrated_versions(db):
 	print "Found migration versions: %s" % versions
 	return versions
 
-def get_migrations():
+def get_migrations_files():
     try:
     	return sorted(glob.glob(config.get_migrations_dir()+"/*.sql"))
     except IOError as e:
@@ -245,7 +250,7 @@ def get_migrations():
     	sys.exit(1)
 
 
-def get_rollbacks():
+def get_rollback_files():
     try:
     	files = sorted(glob.glob(config.get_rollbacks_dir()+"/*.sql"))
     	files.reverse()

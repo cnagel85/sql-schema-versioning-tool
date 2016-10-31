@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, getopt
+import sys, getopt, os
 from lib import config, database
 
 DOC = """\
@@ -100,6 +100,7 @@ if __name__ == '__main__':
 			version = arg
 
 	# load config and environment data
+	config.set_script_directory(os.path.dirname(os.path.realpath(__file__)))
 	config.load_config()
 	config.set_env(env)
 
