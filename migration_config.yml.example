@@ -28,6 +28,8 @@ Environments:
     User: test_user
     Password: password
 
+DefaultEnvironment: test
+
 MigrationsDirectory: ./migrations
 RollbacksDirectory: ./migrations/rollbacks
 

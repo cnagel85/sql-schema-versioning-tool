@@ -34,11 +34,14 @@ DELETE FROM schema_migrations WHERE version='%s';
 COMMIT;
 """
 
+
 def initial_migration():
-	return _INITIAL_MIGRATION_TEXT
+    return _INITIAL_MIGRATION_TEXT
+
 
 def new_migration():
-	return _NEW_MIGRATION_TEXT
+    return _NEW_MIGRATION_TEXT
+
 
 def rollback():
-	return _ROLLBACK_TEXT
+    return _ROLLBACK_TEXT
