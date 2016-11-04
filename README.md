@@ -2,7 +2,7 @@
 A simple tool for versioning and tracking SQL databases schemas inspired by Ruby on Rails schema migrations
 
 ## Note from Author
-I created this tool to allow for an easier route to testing database schemas and updates as well as the ability to quickly bring up a clean test database for running tests or developing on.
+I created this tool to allow for an easier route to testing database schemas and updates as well as the ability to quickly bring up a clean test database for running tests or developing.
 
 I would not necessarily advise using this tool in production. The ease of accidently calling a rollback, drop or clean on your database and possible security issues around having a db user that can easily do this make production use risky and the tool was not meant to be used in the same capacity as Rails database rake tasks.
 
@@ -33,4 +33,4 @@ Postgres
 
 ## The Future
 * Add SQLite support
-* Write an automated test suite for the tools basic functionality and SQL adapters
+* Write a test suite for the tools basic functionality and SQL adapters
