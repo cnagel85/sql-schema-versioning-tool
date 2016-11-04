@@ -5,7 +5,7 @@ import os
 import yaml
 
 _SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
-_CONFIG_FILE_PATH = "{SCRIPT_DIR}/migration_config.yml"
+_CONFIG_FILE_PATH = "{SCRIPT_DIR}/versioning_config.yml"
 _CONFIG = {}
 _ENVIRONMENT = "dev"
 _ENV_DATA = None

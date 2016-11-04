@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 
 _INITIAL_MIGRATION_TEXT = """BEGIN TRANSACTION;
-CREATE TABLE schema_migrations (version varchar(255) NOT NULL, PRIMARY KEY (version));
+CREATE TABLE schema_migrations (
+    version varchar(255) NOT NULL,
+    PRIMARY KEY (version)
+);
 -- DO NOT CHANGE ABOVE THIS LINE
 -- Place Migration statements below
 
@@ -45,3 +48,19 @@ def new_migration():
 
 def rollback():
     return _ROLLBACK_TEXT
+
+
+def get_template(name):
+    if name is "initial_migration":
+        return initial_migration()
+    elif name is "new_migration":
+        return new_migration()
+    elif name is "rollback":
+        return rollback()
+    else:
+        raise TemplateError("template not found")
+
+
+class TemplateError:
+    def __init__(self, message):
+        self.message = message

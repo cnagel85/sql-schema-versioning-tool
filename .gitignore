@@ -1,4 +1,4 @@
-migration_config.yml
+versioning_config.yml
 
 lib/**/*.pyc
 

@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
+import os
 import sys
 import getopt
-import os
-from lib import config, database
+from lib import config, database, migrations
 
 DOC = """\
 NAME
@@ -108,29 +108,30 @@ if __name__ == '__main__':
     config.load_config()
     config.set_env(env)
 
+    db = database.DB(config.get_env())
     # parse command
     for cmd in args:
-        if cmd in ("initial"):
-            database.create_initial_migration()
+        if cmd in ("initial_migration"):
+            migrations.create_initial_migration()
             sys.exit(0)
-        if cmd in ("new"):
-            database.create_new_migration()
+        if cmd in ("new_migration"):
+            migrations.create_new_migration()
             sys.exit(0)
         if cmd in ("db:version"):
-            database.get_version()
+            db.version()
             sys.exit(0)
         if cmd in ("db:create"):
-            database.create_database()
+            db.create()
             sys.exit(0)
         if cmd in ("db:drop"):
-            database.drop_database()
+            db.drop()
             sys.exit(0)
         if cmd in ("db:clean"):
-            database.clean_database()
+            db.clean()
             sys.exit(0)
         if cmd in ("db:migrate"):
-            database.run_migration()
+            db.migrate()
             sys.exit(0)
         if cmd in ("db:rollback"):
-            database.run_rollback(version)
+            db.rollback(version)
             sys.exit(0)
