@@ -25,7 +25,7 @@ class PGAdapter:
                                            user=self.user,
                                            password=self.password,
                                            database=self.database)
-            self.dbConn.set_isolation_level(0)
+            self.dbConn.autocommit = True
         return self.dbConn
 
     def create_database(self):
@@ -91,10 +91,6 @@ class PGAdapter:
             cursor = db.cursor()
             for line in open(filepath, 'r'):
                 # line = line.strip()
-                if re.match('BEGIN TRANSACTION;', line):
-                    continue
-                if re.match('COMMIT;', line):
-                    continue
                 if (re.match(r'--', line) or len(line) == 0):
                     continue
                 if not re.search(r'[^-;]+;', line):

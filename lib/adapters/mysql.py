@@ -19,7 +19,7 @@ class MysqlAdapter:
             self.dbConn = MySQLdb.connect(host=self.host, port=self.port,
                                           user=self.user, passwd=self.password,
                                           db=self.database)
-            self.dbConn.autocommit(False)
+            self.dbConn.autocommit(True)
         return self.dbConn
 
     def get_mysql_connection(self):
@@ -87,10 +87,6 @@ class MysqlAdapter:
             cursor = db.cursor()
             for line in open(filepath, 'r'):
                 # line = line.strip()
-                if re.match('BEGIN TRANSACTION;', line):
-                    continue
-                if re.match('COMMIT;', line):
-                    continue
                 if (re.match(r'--', line) or len(line) == 0):
                     continue
                 if not re.search(r'[^-;]+;', line):

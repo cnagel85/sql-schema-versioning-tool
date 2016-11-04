@@ -1,4 +1,4 @@
-BEGIN TRANSACTION;
+
 CREATE TABLE schema_migrations (
 	version varchar(255) NOT NULL,
 	PRIMARY KEY (version)
@@ -15,4 +15,3 @@ CREATE TABLE TestPeople (
 
 -- DO NOT CHANGE BELOW THIS LINE
 INSERT INTO schema_migrations VALUES('20161027220356');
-COMMIT;

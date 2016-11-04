@@ -7,7 +7,7 @@ from lib import config, database, migrations
 
 DOC = """\
 NAME
-    SQL Schema Migration Tool
+    SQL Schema Versioning Tool
 
 SYNOPSYS
     A tool for tracking and updating database schema versions inspired by
@@ -26,13 +26,15 @@ OPTIONS
 
     -c config
         specifies the path to a YAML config file default is
-        migration_config.yml in the same directory as this script
+        versioning_config.yml in the same directory as this script
 
     -e environment
-        specifies which environment from the config file to use
+        specifies which environment from the config file to use defaults to
+        the DefaultEnvironment in config
 
     -v version
-        specifies a migration to rollback to for db:rollback
+        specifies a migration to rollback for db:rollback, will roll back in
+        order of most recent version back to and including the specifed version
 
 COMMANDS
     initial
@@ -59,22 +61,22 @@ COMMANDS
             lists teh migration version of the database in the config file
 
         migrate
-            runs all database migrations in order
+            runs all unmigrated database migrations in order
 
         rollback
             runs the rollback sql file of the most recent migration or can
-            rollback to a specific version if -v is passed
+            rollback to a specific version number by passing it with -v
 
 FILES
-    migration_config.yml
-        YAML config file conforming to migration_config.yml.example
+    ./versioning_config.yml
+        YAML config file conforming to versioning_config.yml.example
         Can be overridden with -c or --config=
 
 AUTHOR
     Corey Nagel <coreyelliotnagel@gmail.com>
 
 EXAMPLE
-    python migration.py -e test db:create
+    python sql_versioning_tool.py -e test db:create
 """
 
 
@@ -113,25 +115,25 @@ if __name__ == '__main__':
     for cmd in args:
         if cmd in ("initial_migration"):
             migrations.create_initial_migration()
-            sys.exit(0)
-        if cmd in ("new_migration"):
+            break
+        elif cmd in ("new_migration"):
             migrations.create_new_migration()
-            sys.exit(0)
-        if cmd in ("db:version"):
-            db.version()
-            sys.exit(0)
-        if cmd in ("db:create"):
+            break
+        elif cmd in ("db:create"):
             db.create()
-            sys.exit(0)
-        if cmd in ("db:drop"):
+            break
+        elif cmd in ("db:drop"):
             db.drop()
-            sys.exit(0)
-        if cmd in ("db:clean"):
+            break
+        elif cmd in ("db:clean"):
             db.clean()
-            sys.exit(0)
-        if cmd in ("db:migrate"):
+            break
+        elif cmd in ("db:version"):
+            db.version()
+            break
+        elif cmd in ("db:migrate"):
             db.migrate()
-            sys.exit(0)
-        if cmd in ("db:rollback"):
+            break
+        elif cmd in ("db:rollback"):
             db.rollback(version)
-            sys.exit(0)
+            break

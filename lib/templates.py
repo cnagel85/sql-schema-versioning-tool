@@ -1,40 +1,37 @@
 #!/usr/bin/env python
 
-_INITIAL_MIGRATION_TEXT = """BEGIN TRANSACTION;
+_INITIAL_MIGRATION_TEXT = """
 CREATE TABLE schema_migrations (
     version varchar(255) NOT NULL,
     PRIMARY KEY (version)
 );
--- DO NOT CHANGE ABOVE THIS LINE
+-- DO NOT CHANGE ABOVE THIS LINE --
 -- Place Migration statements below
 
 
 
--- DO NOT CHANGE BELOW THIS LINE
+-- DO NOT CHANGE BELOW THIS LINE --
 INSERT INTO schema_migrations VALUES('%s');
-COMMIT;
 """
 
-_NEW_MIGRATION_TEXT = """BEGIN TRANSACTION;
+_NEW_MIGRATION_TEXT = """
 INSERT INTO schema_migrations VALUES('%s');
--- DO NOT CHANGE ABOVE THIS LINE
+-- DO NOT CHANGE ABOVE THIS LINE --
 -- Place Migration statements below
 
 
 
--- DO NOT CHANGE BELOW THIS LINE
-COMMIT;
+-- DO NOT CHANGE BELOW THIS LINE --
 """
 
-_ROLLBACK_TEXT = """BEGIN TRANSACTION;
--- DO NOT CHANGE ABOVE THIS LINE
+_ROLLBACK_TEXT = """
+-- DO NOT CHANGE ABOVE THIS LINE --
 -- Place Rollback Migration statements below
 
 
 
--- DO NOT CHANGE BELOW THIS LINE
+-- DO NOT CHANGE BELOW THIS LINE --
 DELETE FROM schema_migrations WHERE version='%s';
-COMMIT;
 """
 
 
