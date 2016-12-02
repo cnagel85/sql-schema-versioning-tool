@@ -24,6 +24,10 @@ def get_filepath():
     return _CONFIG_FILE_PATH.replace("{SCRIPT_DIR}", _SCRIPT_DIR)
 
 
+def get_config_dir():
+    return os.path.dirname(get_filepath())
+
+
 def get():
     return _CONFIG
 
@@ -88,11 +92,15 @@ def default_env():
 
 
 def get_migrations_dir():
-    return _CONFIG['MigrationsDirectory'].replace("{SCRIPT_DIR}", _SCRIPT_DIR)
+    mDir = _CONFIG['MigrationsDirectory'].replace("{SCRIPT_DIR}", _SCRIPT_DIR)
+    mDir = mDir.replace("{CONFIG_DIR}", get_config_dir())
+    return mDir
 
 
 def get_rollbacks_dir():
-    return _CONFIG['RollbacksDirectory'].replace("{SCRIPT_DIR}", _SCRIPT_DIR)
+    rDir = _CONFIG['RollbacksDirectory'].replace("{SCRIPT_DIR}", _SCRIPT_DIR)
+    rDir = rDir.replace("{CONFIG_DIR}", get_config_dir())
+    return rDir
 
 
 class ConfigError(Exception):

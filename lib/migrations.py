@@ -36,8 +36,9 @@ class MigrationBase:
 
     def create_migration_file(self):
         directory = config.get_migrations_dir()
-        if self.migration_file_exists():
-            print "migration file already exists"
+        f = self.migration_file_exists()
+        if f:
+            print "migration file already exists [%s]" % f
         else:
             print "creating migration file[%s]" % self.filename
             fileData = templates.get_template("new_migration") % self.version
@@ -90,8 +91,9 @@ class Migration(MigrationBase):
 
     def create_rollback_file(self):
         directory = config.get_rollbacks_dir()
-        if self.rollback_file_exists():
-            print "migration file already exists"
+        f = self.rollback_file_exists()
+        if f:
+            print "migration rollback file already exists [%s]" % f
         else:
             rbName = self.rollback_filename()
             fileData = templates.get_template("rollback") % self.version
@@ -144,7 +146,7 @@ def check_sql_file_exists(directory, identifier):
     print "in dir[%s]" % directory
     for filename in glob.glob(directory + "/*.sql"):
         if identifier in filename:
-            return True
+            return filename
     return False
 
 
