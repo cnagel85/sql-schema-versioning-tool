@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-_INITIAL_MIGRATION_TEXT = """
+_INITIAL_MIGRATION_TEXT = """\
 CREATE TABLE schema_migrations (
     version varchar(255) NOT NULL,
     PRIMARY KEY (version)
@@ -14,7 +14,7 @@ CREATE TABLE schema_migrations (
 INSERT INTO schema_migrations VALUES('%s');
 """
 
-_NEW_MIGRATION_TEXT = """
+_NEW_MIGRATION_TEXT = """\
 INSERT INTO schema_migrations VALUES('%s');
 -- DO NOT CHANGE ABOVE THIS LINE --
 -- Place Migration statements below
@@ -24,7 +24,7 @@ INSERT INTO schema_migrations VALUES('%s');
 -- DO NOT CHANGE BELOW THIS LINE --
 """
 
-_ROLLBACK_TEXT = """
+_ROLLBACK_TEXT = """\
 -- DO NOT CHANGE ABOVE THIS LINE --
 -- Place Rollback Migration statements below
 

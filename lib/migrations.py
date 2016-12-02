@@ -41,7 +41,7 @@ class MigrationBase:
             print "migration file already exists [%s]" % f
         else:
             print "creating migration file[%s]" % self.filename
-            fileData = templates.get_template("new_migration") % self.version
+            fileData = templates.get_template(self.TEMPLATE) % self.version
             create_file(directory, self.filename, fileData)
 
     def migration_file_exists(self):
@@ -49,6 +49,7 @@ class MigrationBase:
 
 
 class InitialMigration(MigrationBase):
+    TEMPLATE = "initial_migration"
 
     def new(self):
         self.name = self.INITIAL
@@ -67,6 +68,7 @@ class InitialMigration(MigrationBase):
 
 
 class Migration(MigrationBase):
+    TEMPLATE = "new_migration"
 
     def new(self):
         self.name = self.prompt_migration_name()
