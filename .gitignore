@@ -2,5 +2,5 @@ versioning_config.yml
 
 lib/**/*.pyc
 
-./migrations
+migrations
 test/**/*.yml
