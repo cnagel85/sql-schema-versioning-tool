@@ -88,8 +88,9 @@ if __name__ == '__main__':
     try:
         long_args = ["help", "config=", "environment=", "version="]
         opts, args = getopt.getopt(sys.argv[1:], "hc:e:v:", long_args)
-    except getopt.GetoptError:
-        print "Opt Err : " + getopt.GetoptError
+    except getopt.GetoptError as err:
+        print "Opt Err :", str(err)
+        usage()
         sys.exit(1)
 
     version = ''
