@@ -2,6 +2,7 @@
 
 import os
 import re
+import datetime
 
 # import from .
 import templates
@@ -24,12 +25,14 @@ class Seed:
         self.filepath = filepath
         self.filename = filepath.split("/")[-1]
 
-        self.name = self.filename.replace(".sql", "")
+        filename_parts = self.filename.replace(".sql", "").split("_")
+        self.version = filename_parts[0]
+        self.name = "_".join(filename_parts[1:])
         return self
 
     def new(self):
         self.name = self.prompt_seed_name()
-        self.filepath = files.filepath(config.get_seeds_dir, self.name + ".sql")
+        self.generate_filename()
         return self
 
     def prompt_seed_name(self):
@@ -44,6 +47,12 @@ class Seed:
     def run(self, db):
         db.execute_sql_file(self.filepath)
 
+    def generate_filename(self):
+        now = datetime.datetime.utcnow()
+        self.version = now.strftime("%Y%m%d%H%M%S")
+        self.filename = "%s_%s.sql" % (self.version, self.name)
+        self.filepath = files.filepath(config.get_seeds_dir(), self.filename)
+
     def create_seed_file(self):
         directory = config.get_seeds_dir()
         f = files.check_sql_file_exists(config.get_seeds_dir(), self.name)
@@ -53,7 +62,7 @@ class Seed:
             filename = self.name + ".sql"
             print "creating seed file[%s]" % filename
             fileData = templates.get_template(self.TEMPLATE)
-            files.create_file(directory, filename, fileData)
+            files.create_file(directory, self.filename, fileData)
 
 
 def create_seed():
