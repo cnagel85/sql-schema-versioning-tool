@@ -3,7 +3,7 @@
 import os
 import sys
 import getopt
-from lib import config, database, migrations
+from lib import config, database, migrations, seeds
 
 DOC = """\
 NAME
@@ -120,6 +120,9 @@ if __name__ == '__main__':
         elif cmd in ("new_migration"):
             migrations.create_new_migration()
             break
+        elif cmd in ("new_seed"):
+            seeds.create_seed()
+            break
         elif cmd in ("db:create"):
             db.create()
             break
@@ -134,6 +137,9 @@ if __name__ == '__main__':
             break
         elif cmd in ("db:migrate"):
             db.migrate()
+            break
+        elif cmd in ("db:seed"):
+            db.seed()
             break
         elif cmd in ("db:rollback"):
             db.rollback(version)

@@ -34,6 +34,15 @@ _ROLLBACK_TEXT = """\
 DELETE FROM schema_migrations WHERE version='%s';
 """
 
+_NEW_SEED_TEXT = """\
+-- DO NOT CHANGE ABOVE THIS LINE --
+-- Place Seed statements below
+
+
+
+-- DO NOT CHANGE BELOW THIS LINE --
+"""
+
 
 def initial_migration():
     return _INITIAL_MIGRATION_TEXT
@@ -47,6 +56,10 @@ def rollback():
     return _ROLLBACK_TEXT
 
 
+def new_seed():
+    return _NEW_SEED_TEXT
+
+
 def get_template(name):
     if name is "initial_migration":
         return initial_migration()
@@ -54,6 +67,8 @@ def get_template(name):
         return new_migration()
     elif name is "rollback":
         return rollback()
+    elif name is "new_seedfile":
+        return new_seed()
     else:
         raise TemplateError("template not found")
 

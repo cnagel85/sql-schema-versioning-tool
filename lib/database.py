@@ -5,6 +5,7 @@ import importlib
 # import from .
 import config
 import migrations
+import seeds
 
 
 class DBError(Exception):
@@ -86,3 +87,7 @@ class DB():
         rollbacks = migrations.get_migrated(rollbackVersions)
         for migration in rollbacks:
             migration.rollback(self)
+
+    def seed(self):
+        for s in seeds.get_seeds():
+            s.run(self)

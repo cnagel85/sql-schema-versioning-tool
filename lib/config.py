@@ -83,24 +83,27 @@ def get_env_sql_cfg():
 
 
 def default_env():
-    try:
-        if len(_CONFIG["DefaultEnvironment"]) > 0:
-            return _CONFIG["DefaultEnvironment"]
-
-    except:
+    if len(_CONFIG["DefaultEnvironment"]) == 0:
         raise ConfigError("No DefaultEnvironment set")
+    return _CONFIG["DefaultEnvironment"]
 
 
 def get_migrations_dir():
-    mDir = _CONFIG['MigrationsDirectory'].replace("{SCRIPT_DIR}", _SCRIPT_DIR)
-    mDir = mDir.replace("{CONFIG_DIR}", get_config_dir())
-    return mDir
+    return replace_inlines(_CONFIG['MigrationsDirectory'])
 
 
 def get_rollbacks_dir():
-    rDir = _CONFIG['RollbacksDirectory'].replace("{SCRIPT_DIR}", _SCRIPT_DIR)
-    rDir = rDir.replace("{CONFIG_DIR}", get_config_dir())
-    return rDir
+    return replace_inlines(_CONFIG['RollbacksDirectory'])
+
+
+def get_seeds_dir():
+    return replace_inlines(_CONFIG['SeedsDirectory'])
+
+
+def replace_inlines(s):
+    s = s.replace("{SCRIPT_DIR}", _SCRIPT_DIR)
+    s = s.replace("{CONFIG_DIR}", get_config_dir())
+    return s
 
 
 class ConfigError(Exception):

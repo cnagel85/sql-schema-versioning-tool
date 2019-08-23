@@ -1,13 +1,13 @@
+#!/usr/bin/env python
 
 import os
-import sys
-import glob
 import re
 import datetime
 
 # import from .
 import templates
 import config
+import files
 
 
 class MigrationBase:
@@ -32,7 +32,7 @@ class MigrationBase:
         now = datetime.datetime.utcnow()
         self.version = now.strftime("%Y%m%d%H%M%S")
         self.filename = "%s_%s.sql" % (self.version, self.name)
-        self.filepath = config.get_migrations_dir() + "/" + self.filename
+        self.filepath = files.filepath(config.get_migrations_dir(), self.filename)
 
     def create_migration_file(self):
         directory = config.get_migrations_dir()
@@ -42,10 +42,10 @@ class MigrationBase:
         else:
             print "creating migration file[%s]" % self.filename
             fileData = templates.get_template(self.TEMPLATE) % self.version
-            create_file(directory, self.filename, fileData)
+            files.create_file(directory, self.filename, fileData)
 
     def migration_file_exists(self):
-        return check_sql_file_exists(config.get_migrations_dir(), self.version)
+        return files.check_sql_file_exists(config.get_migrations_dir(), self.version)
 
 
 class InitialMigration(MigrationBase):
@@ -60,7 +60,7 @@ class InitialMigration(MigrationBase):
         self.create_migration_file()
 
     def migration_file_exists(self):
-        return check_sql_file_exists(config.get_migrations_dir(), self.name)
+        return files.check_sql_file_exists(config.get_migrations_dir(), self.name)
 
     def rollback(self, db):
         print "Rollback of initial migration requested"
@@ -99,16 +99,16 @@ class Migration(MigrationBase):
         else:
             rbName = self.rollback_filename()
             fileData = templates.get_template("rollback") % self.version
-            create_file(directory, rbName, fileData)
+            files.create_file(directory, rbName, fileData)
 
     def rollback_filepath(self):
-        return config.get_rollbacks_dir() + "/" + self.rollback_filename()
+        return files.filepath(config.get_rollbacks_dir(), self.rollback_filename())
 
     def rollback_filename(self):
         return self.filename.replace('.sql', '_rollback.sql')
 
     def rollback_file_exists(self):
-        check_sql_file_exists(config.get_rollbacks_dir(), self.version)
+        files.check_sql_file_exists(config.get_rollbacks_dir(), self.version)
 
 
 class MigrationError:
@@ -123,33 +123,14 @@ def create_initial_migration():
 
 def create_new_migration():
     if not check_for_initial_migration():
-        print "must create initial igration first"
-        sys.exit(1)
+        raise MigrationError("must create initial migration first")
     m = Migration().new()
     m.create_files()
 
 
-def create_file(directory, filename, file_data):
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-    # Create file
-    filepath = directory + "/" + filename
-    with open(filepath, "w+") as f:
-        f.write(file_data)
-
-
 def check_for_initial_migration():
     directory = config.get_migrations_dir()
-    return check_sql_file_exists(directory, MigrationBase.INITIAL)
-
-
-def check_sql_file_exists(directory, identifier):
-    print "checking for file with identifier[%s]" % identifier,
-    print "in dir[%s]" % directory
-    for filename in glob.glob(directory + "/*.sql"):
-        if identifier in filename:
-            return filename
-    return False
+    return files.check_sql_file_exists(directory, MigrationBase.INITIAL)
 
 
 def get_migrations():
@@ -175,8 +156,4 @@ def get_migration(filepath):
 
 
 def get_migrations_files():
-    try:
-        return sorted(glob.glob(config.get_migrations_dir() + "/*.sql"))
-    except IOError:
-        print "no migration files found"
-        sys.exit(1)
+    return files.get_sql_files(config.get_migrations_dir())
