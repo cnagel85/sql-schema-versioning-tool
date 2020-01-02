@@ -25,6 +25,7 @@ Postgres
 
 
 ## Updates
+* Updated to use Python3.8 instead of 2.7
 * refactored lib/database.py
 	* split out migrations into their own file and class
 	* moved mysql and postgres specific code to their own adapter modules
