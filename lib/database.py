@@ -57,9 +57,7 @@ class DB():
 
     def migrate(self):
         migrated = self.adapter.get_migrated_versions()
-        print(migrated)
         for m in migrations.get_migrations():
-            print(m.version)
             if m.version not in migrated:
                 m.run(self)
 
