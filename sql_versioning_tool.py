@@ -81,7 +81,7 @@ EXAMPLE
 
 
 def usage():
-    print DOC
+    print(DOC)
 
 
 if __name__ == '__main__':
@@ -89,7 +89,7 @@ if __name__ == '__main__':
         long_args = ["help", "config=", "environment=", "version="]
         opts, args = getopt.getopt(sys.argv[1:], "hc:e:v:", long_args)
     except getopt.GetoptError as err:
-        print "Opt Err :", str(err)
+        print("Opt Err :", str(err))
         usage()
         sys.exit(1)
 

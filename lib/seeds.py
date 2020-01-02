@@ -5,9 +5,9 @@ import re
 import datetime
 
 # import from .
-import templates
-import config
-import files
+from . import templates
+from . import config
+from . import files
 
 
 class SeedError:
@@ -37,11 +37,11 @@ class Seed:
 
     def prompt_seed_name(self):
         name_prompt = 'Enter seed name([a-z0-9_] only): '
-        name = raw_input(name_prompt)
+        name = input(name_prompt)
         name_not_exist = len(name) is 0
         while name_not_exist or re.match('^[a-z0-9_]+$', name) is None:
-            print "Invalid seed name"
-            name = raw_input(name_prompt)
+            print("Invalid seed name")
+            name = input(name_prompt)
         return name
 
     def run(self, db):
@@ -57,10 +57,10 @@ class Seed:
         directory = config.get_seeds_dir()
         f = files.check_sql_file_exists(config.get_seeds_dir(), self.name)
         if f:
-            print "seed file already exists [%s]" % f
+            print("seed file already exists [%s]" % f)
         else:
             filename = self.name + ".sql"
-            print "creating seed file[%s]" % filename
+            print("creating seed file[%s]" % filename)
             fileData = templates.get_template(self.TEMPLATE)
             files.create_file(directory, self.filename, fileData)
 

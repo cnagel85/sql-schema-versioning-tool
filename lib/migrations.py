@@ -5,9 +5,9 @@ import re
 import datetime
 
 # import from .
-import templates
-import config
-import files
+from . import templates
+from . import config
+from . import files
 
 
 class MigrationBase:
@@ -38,9 +38,9 @@ class MigrationBase:
         directory = config.get_migrations_dir()
         f = self.migration_file_exists()
         if f:
-            print "migration file already exists [%s]" % f
+            print("migration file already exists [%s]" % f)
         else:
-            print "creating migration file[%s]" % self.filename
+            print("creating migration file[%s]" % self.filename)
             fileData = templates.get_template(self.TEMPLATE) % self.version
             files.create_file(directory, self.filename, fileData)
 
@@ -63,7 +63,7 @@ class InitialMigration(MigrationBase):
         return files.check_sql_file_exists(config.get_migrations_dir(), self.name)
 
     def rollback(self, db):
-        print "Rollback of initial migration requested"
+        print("Rollback of initial migration requested")
         db.clean()
 
 
@@ -77,11 +77,11 @@ class Migration(MigrationBase):
 
     def prompt_migration_name(self):
         name_prompt = 'Enter migration name([a-z0-9_] only): '
-        name = raw_input(name_prompt)
+        name = input(name_prompt)
         name_not_exist = len(name) is 0 or self.INITIAL in name
         while name_not_exist or re.match('^[a-z0-9_]+$', name) is None:
-            print "Invalid migration name"
-            name = raw_input(name_prompt)
+            print("Invalid migration name")
+            name = input(name_prompt)
         return name
 
     def create_files(self):
@@ -95,7 +95,7 @@ class Migration(MigrationBase):
         directory = config.get_rollbacks_dir()
         f = self.rollback_file_exists()
         if f:
-            print "migration rollback file already exists [%s]" % f
+            print("migration rollback file already exists [%s]" % f)
         else:
             rbName = self.rollback_filename()
             fileData = templates.get_template("rollback") % self.version
