@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os
 import glob
@@ -22,8 +22,8 @@ def check_sql_file_exists(directory, identifier):
 
 
 def check_file_with_id_exists(directory, identifier, extension):
-    print "checking for file with identifier[%s] and extension[%s]" % (identifier, extension),
-    print "in dir[%s]" % directory
+    print("checking for file with identifier[%s] and extension[%s]" % (identifier, extension),)
+    print("in dir[%s]" % directory)
     for filename in glob.glob("%s/*.%s" % (directory, extension)):
         if identifier in filename:
             return filename
