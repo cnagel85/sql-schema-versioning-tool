@@ -116,21 +116,20 @@ class PGAdapter:
         print("[INFO] Finished Excuting SQL file")
 
     def create_table_dump(self, filepath):
-        if platform.system() != "linux":
+        if platform.system() != "Linux":
             print("Table dump only implemented for linux environments.")
             return
         try:
             process = subprocess.Popen(
                 ['pg_dump',
                  '--dbname=postgresql://{}:{}@{}:{}/{}'.format(self.user, self.password, self.host, self.port, self.database),
-                 '-n', self.database,
+                 '-n', "public",
                  '-f', filepath,
                  '-s',
                  '-O',
-                 '-x'],
-                stdout=subprocess.PIPE
+                 '-x']
             )
-            print(process.communicate()[0])
+            process.communicate()[0]
             if process.returncode != 0:
                 print('Command failed. Return code : {}'.format(process.returncode))
         except Exception as e:
