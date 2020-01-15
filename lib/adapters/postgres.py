@@ -2,6 +2,7 @@
 import psycopg2
 import re
 import subprocess
+import platform
 
 
 class PGAdapterError(Exception):
@@ -115,6 +116,9 @@ class PGAdapter:
         print("[INFO] Finished Excuting SQL file")
 
     def create_table_dump(self, filepath):
+        if platform.system() != "linux":
+            print("Table dump only implemented for linux environments.")
+            return
         try:
             process = subprocess.Popen(
                 ['pg_dump',
