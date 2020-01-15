@@ -109,6 +109,9 @@ class MysqlAdapter:
             raise
         print("[INFO] Finished Excuting SQL file")
 
+    def create_table_dump(self, filepath):
+        print("Table dump not implemented for mysql adapter.")
+
 
 class MysqlAdapterError(Exception):
     def __init__(self, message):

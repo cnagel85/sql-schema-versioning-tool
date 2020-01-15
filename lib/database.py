@@ -3,6 +3,7 @@
 import importlib
 
 # import from .
+from . import files
 from . import config
 from . import migrations
 from . import seeds
@@ -55,11 +56,15 @@ class DB():
     def execute_sql_file(self, filepath):
         self.adapter.execute_sql_file(filepath)
 
+    def create_table_dump(self, filepath):
+        self.adapter.create_table_dump(filepath)
+
     def migrate(self):
         migrated = self.adapter.get_migrated_versions()
         for m in migrations.get_migrations():
             if m.version not in migrated:
                 m.run(self)
+        self.create_table_dump(files.filepath(config.get_migrations_dir(), "schema.lock"))
 
     def rollback(self, version):
         migratedVersions = self.adapter.get_migrated_versions()
@@ -67,6 +72,7 @@ class DB():
             print("no migrations to rollback")
             return
         migratedVersions.reverse()
+        self.create_table_dump(files.filepath(config.get_migrations_dir(), "schema.lock"))
 
         # confirm rollback version exists
         if version == '':
