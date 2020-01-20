@@ -121,9 +121,13 @@ class MysqlAdapter:
                  '-u', self.user,
                  '-p{}'.format(self.password),
                  '-h', self.host,
-                 '-P', self.port,
-                 '-d',
+                 '-P', str(self.port),
                  '-r', filepath,
+                 '-d',
+                 '--skip-add-drop',
+                 '--skip-comments',
+                 '--skip-set-charset',
+                 '--skip-opt',
                  self.database]
             )
             process.communicate()[0]
