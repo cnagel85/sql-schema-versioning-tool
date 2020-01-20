@@ -33,7 +33,7 @@ class MysqlAdapter:
             db.close()
         except MySQLdb.Error as e:
             db.close()
-            if e[0] == 1007:
+            if e.args[0] == 1007:
                 print("database already exists")
             else:
                 raise
@@ -47,7 +47,7 @@ class MysqlAdapter:
             db.close()
         except MySQLdb.Error as e:
             db.close()
-            if e[0] != 1008:
+            if e.args[0] != 1008:
                 raise
             else:
                 print("database does not exist")
@@ -74,7 +74,7 @@ class MysqlAdapter:
             for row in rows:
                 versions.append(row[0])
         except MySQLdb.Error as e:
-            if e[0] != 1146:
+            if e.args[0] != 1146:
                 raise
         return sorted(versions)
 
