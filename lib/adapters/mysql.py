@@ -124,7 +124,7 @@ class MysqlAdapter:
                  '-P', str(self.port),
                  '-r', filepath,
                  '-d',
-                 '--skip-add-drop',
+                 '--skip-add-drop-table',
                  '--skip-comments',
                  '--skip-set-charset',
                  '--skip-opt',
