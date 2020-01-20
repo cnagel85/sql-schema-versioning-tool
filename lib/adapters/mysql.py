@@ -1,6 +1,8 @@
 
 import MySQLdb
 import re
+import subprocess
+import platform
 
 
 class MysqlAdapter:
@@ -110,7 +112,25 @@ class MysqlAdapter:
         print("[INFO] Finished Excuting SQL file")
 
     def create_table_dump(self, filepath):
-        print("Table dump not implemented for mysql adapter.")
+        if platform.system() != "Linux":
+            print("Table dump only implemented for linux environments.")
+            return
+        try:
+            process = subprocess.Popen(
+                ['mysqldump',
+                 '-u', self.user,
+                 '-p{}'.format(self.password),
+                 '-h', self.host,
+                 '-P', self.port,
+                 '-d',
+                 '-r', filepath,
+                 self.database]
+            )
+            process.communicate()[0]
+            if process.returncode != 0:
+                print('Command failed. Return code : {}'.format(process.returncode))
+        except Exception as e:
+            print(e)
 
 
 class MysqlAdapterError(Exception):
