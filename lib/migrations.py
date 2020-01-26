@@ -18,7 +18,7 @@ class MigrationBase:
             raise MigrationError("Migration file not found")
 
         self.filepath = filepath
-        self.filename = filepath.split("/")[-1]
+        self.filename = filepath.split(os.path.sep)[-1]
 
         filename_parts = self.filename.replace(".sql", "").split("_")
         self.version = filename_parts[0]
