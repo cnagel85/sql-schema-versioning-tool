@@ -36,6 +36,9 @@ OPTIONS
         specifies a migration to rollback for db:rollback, will roll back in
         order of most recent version back to and including the specifed version
 
+    -p override-password
+        override the database password in the provided yaml config
+
 COMMANDS
     initial
         creates a migrations folder in the location specified by the config
@@ -86,8 +89,8 @@ def usage():
 
 if __name__ == '__main__':
     try:
-        long_args = ["help", "config=", "environment=", "version="]
-        opts, args = getopt.getopt(sys.argv[1:], "hc:e:v:", long_args)
+        long_args = ["help", "config=", "environment=", "version=", "override-password="]
+        opts, args = getopt.getopt(sys.argv[1:], "hc:e:v:p:", long_args)
     except getopt.GetoptError as err:
         print "Opt Err :", str(err)
         usage()
@@ -95,6 +98,7 @@ if __name__ == '__main__':
 
     version = ''
     env = ''
+    overridePassword = ''
     for opt, arg in opts:
         if opt in ('-h', '--help'):
             usage()
@@ -105,11 +109,15 @@ if __name__ == '__main__':
             env = arg
         if opt in ('-v', '--version'):
             version = arg
+        if opt in ('-p', '--override-password'):
+            overridePassword = arg
 
     # load config and environment data
     config.set_script_directory(os.path.dirname(os.path.realpath(__file__)))
     config.load_config()
     config.set_env(env)
+    if overridePassword != '':
+        config.set_override_password(overridePassword)
 
     db = database.DB(config.get_env())
     # parse command

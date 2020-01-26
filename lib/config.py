@@ -9,6 +9,7 @@ _CONFIG_FILE_PATH = "{SCRIPT_DIR}/versioning_config.yml"
 _CONFIG = {}
 _ENVIRONMENT = "dev"
 _ENV_DATA = None
+_OVERRIDE_PASSWORD = ''
 
 
 def set_script_directory(directory):
@@ -38,6 +39,11 @@ def set_filepath(filepath):
     _CONFIG_FILE_PATH = filepath
 
 
+def set_override_password(password):
+    global _OVERRIDE_PASSWORD
+    _OVERRIDE_PASSWORD = password
+
+
 def load_config():
     global _CONFIG
     print "Loading YAML config file [%s]..." % get_filepath()
@@ -50,6 +56,9 @@ def get_env():
     if _ENV_DATA is None:
         _ENV_DATA = next(e for e in _CONFIG["Environments"] if e[
                          "Name"] == _ENVIRONMENT)
+    if _OVERRIDE_PASSWORD != '':
+        if _ENV_DATA is not None and _ENV_DATA["SQLConfig"] is not None:
+            _ENV_DATA["SQLConfig"]["Password"] = _OVERRIDE_PASSWORD
     return _ENV_DATA
 
 
