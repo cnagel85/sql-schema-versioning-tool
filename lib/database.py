@@ -1,11 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import importlib
 
 # import from .
-import config
-import migrations
-import seeds
+from . import config
+from . import migrations
+from . import seeds
 
 
 class DBError(Exception):
@@ -34,30 +34,29 @@ class DB():
             msg = "[WARNING] Are you sure you want to drop[all data will \
                    be lost] database with name %s [yes/No]? "
             if not config.confirm(msg % self.database, 'yes'):
-                print "Exiting without dropping database"
+                print("Exiting without dropping database")
                 return
         self.adapter.drop_database()
 
     def clean(self):
-        print "Attempting to drop database"
+        print("Attempting to drop database")
         self.drop()
-        print "Attempting to recreate clean database"
+        print("Attempting to recreate clean database")
         self.create()
 
     def version(self):
         migrated = self.adapter.get_migrated_versions()
-        print "Found migration versions: %s" % migrated
+        print("Found migration versions: %s" % migrated)
         if len(migrated) > 0:
-            print "Current migration version: " + migrated[-1]
+            print("Current migration version: " + migrated[-1])
         else:
-            print "No version data in database"
+            print("No version data in database")
 
     def execute_sql_file(self, filepath):
         self.adapter.execute_sql_file(filepath)
 
     def migrate(self):
         migrated = self.adapter.get_migrated_versions()
-        # print migrations.get_migrations()
         for m in migrations.get_migrations():
             if m.version not in migrated:
                 m.run(self)
@@ -65,7 +64,7 @@ class DB():
     def rollback(self, version):
         migratedVersions = self.adapter.get_migrated_versions()
         if len(migratedVersions) == 0:
-            print "no migrations to rollback"
+            print("no migrations to rollback")
             return
         migratedVersions.reverse()
 
@@ -73,7 +72,7 @@ class DB():
         if version == '':
             version = migratedVersions[0]
         elif version not in migratedVersions:
-            print "Cannot find migration %s in migrated" % version
+            print("Cannot find migration %s in migrated" % version)
             raise DBError("Migration Not Found")
 
         # get migrations to rollback

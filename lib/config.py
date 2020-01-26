@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys
 import os
@@ -34,7 +34,7 @@ def get():
 
 
 def set_filepath(filepath):
-    print "overriding config filepath with [%s]" % filepath
+    print("overriding config filepath with [%s]" % filepath)
     global _CONFIG_FILE_PATH
     _CONFIG_FILE_PATH = filepath
 
@@ -46,7 +46,7 @@ def set_override_password(password):
 
 def load_config():
     global _CONFIG
-    print "Loading YAML config file [%s]..." % get_filepath()
+    print("Loading YAML config file [%s]..." % get_filepath())
     with open(get_filepath(), 'r') as f:
         _CONFIG = yaml.load(f)
 
@@ -70,18 +70,18 @@ def set_env(env):
 def validate_environment(env):
     if len(env) == 0:
         env = default_env()
-        print "Running in default environment [%s]" % env
+        print("Running in default environment [%s]" % env)
     else:
         envs = [str(e["Name"]) for e in _CONFIG["Environments"]]
         if env not in envs:
-            print "Not a valid environment, environment must be in %s" % envs
+            print("Not a valid environment, environment must be in %s" % envs)
             sys.exit(2)
         if env not in ("test", "dev"):
             msg = "Are you sure you want to use the '%s' env [yes/No]? " % env
             if not confirm(msg, "yes"):
-                print "Environment not confirmed"
+                print("Environment not confirmed")
                 sys.exit(2)
-        print "Running in environment [%s]" % env
+        print("Running in environment [%s]" % env)
 
     return env
 
@@ -121,4 +121,4 @@ class ConfigError(Exception):
 
 
 def confirm(msg, confirm_response):
-    return raw_input(msg).lower() == confirm_response.lower()
+    return input(msg).lower() == confirm_response.lower()

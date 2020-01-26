@@ -33,24 +33,24 @@ class MysqlAdapter:
             db.close()
         except MySQLdb.Error as e:
             db.close()
-            if e[0] == 1007:
-                print "database already exists"
+            if e.args[0] == 1007:
+                print("database already exists")
             else:
                 raise
 
     def drop_database(self):
         db = self.get_mysql_connection()
-        print "Dropping database " + self.database
+        print("Dropping database " + self.database)
 
         try:
             db.cursor().execute("DROP DATABASE %s;" % self.database)
             db.close()
         except MySQLdb.Error as e:
             db.close()
-            if e[0] != 1008:
+            if e.args[0] != 1008:
                 raise
             else:
-                print "database does not exist"
+                print("database does not exist")
 
     def query(self, query, limit=-1):
         db = self.get_db_connection()
@@ -74,14 +74,14 @@ class MysqlAdapter:
             for row in rows:
                 versions.append(row[0])
         except MySQLdb.Error as e:
-            if e[0] != 1146:
+            if e.args[0] != 1146:
                 raise
         return sorted(versions)
 
     def execute_sql_file(self, filepath):
         db = self.get_db_connection()
-        print "[INFO] Executing SQL file: '%s'" % (filepath)
-        print "[INFO] Executing SQL statements:\t"
+        print("[INFO] Executing SQL file: '%s'" % (filepath))
+        print("[INFO] Executing SQL statements:\t")
         statement = ""
         try:
             cursor = db.cursor()
@@ -95,7 +95,7 @@ class MysqlAdapter:
                     statement += line
                     # print "\n\n[DEBUG] Executing SQL statement:\n\t%s" %
                     # statement
-                    print "\t" + statement
+                    print("\t" + statement)
                     try:
                         cursor.execute(statement)
                     except MySQLdb.Error:
@@ -107,7 +107,7 @@ class MysqlAdapter:
         except MySQLdb.Error:
             db.rollback()
             raise
-        print "[INFO] Finished Excuting SQL file"
+        print("[INFO] Finished Excuting SQL file")
 
 
 class MysqlAdapterError(Exception):
