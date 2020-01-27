@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os
 import sys
@@ -35,6 +35,9 @@ OPTIONS
     -v version
         specifies a migration to rollback for db:rollback, will roll back in
         order of most recent version back to and including the specifed version
+
+    -p override-password
+        override the database password in the provided yaml config
 
 COMMANDS
     initial
@@ -81,20 +84,21 @@ EXAMPLE
 
 
 def usage():
-    print DOC
+    print(DOC)
 
 
 if __name__ == '__main__':
     try:
-        long_args = ["help", "config=", "environment=", "version="]
-        opts, args = getopt.getopt(sys.argv[1:], "hc:e:v:", long_args)
+        long_args = ["help", "config=", "environment=", "version=", "override-password="]
+        opts, args = getopt.getopt(sys.argv[1:], "hc:e:v:p:", long_args)
     except getopt.GetoptError as err:
-        print "Opt Err :", str(err)
+        print("Opt Err :", str(err))
         usage()
         sys.exit(1)
 
     version = ''
     env = ''
+    overridePassword = ''
     for opt, arg in opts:
         if opt in ('-h', '--help'):
             usage()
@@ -105,11 +109,15 @@ if __name__ == '__main__':
             env = arg
         if opt in ('-v', '--version'):
             version = arg
+        if opt in ('-p', '--override-password'):
+            overridePassword = arg
 
     # load config and environment data
     config.set_script_directory(os.path.dirname(os.path.realpath(__file__)))
     config.load_config()
     config.set_env(env)
+    if overridePassword != '':
+        config.set_override_password(overridePassword)
 
     db = database.DB(config.get_env())
     # parse command

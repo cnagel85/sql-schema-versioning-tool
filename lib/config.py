@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys
 import os
@@ -9,6 +9,7 @@ _CONFIG_FILE_PATH = "{SCRIPT_DIR}/versioning_config.yml"
 _CONFIG = {}
 _ENVIRONMENT = "dev"
 _ENV_DATA = None
+_OVERRIDE_PASSWORD = ''
 
 
 def set_script_directory(directory):
@@ -33,14 +34,19 @@ def get():
 
 
 def set_filepath(filepath):
-    print "overriding config filepath with [%s]" % filepath
+    print("overriding config filepath with [%s]" % filepath)
     global _CONFIG_FILE_PATH
     _CONFIG_FILE_PATH = filepath
 
 
+def set_override_password(password):
+    global _OVERRIDE_PASSWORD
+    _OVERRIDE_PASSWORD = password
+
+
 def load_config():
     global _CONFIG
-    print "Loading YAML config file [%s]..." % get_filepath()
+    print("Loading YAML config file [%s]..." % get_filepath())
     with open(get_filepath(), 'r') as f:
         _CONFIG = yaml.load(f)
 
@@ -50,6 +56,9 @@ def get_env():
     if _ENV_DATA is None:
         _ENV_DATA = next(e for e in _CONFIG["Environments"] if e[
                          "Name"] == _ENVIRONMENT)
+    if _OVERRIDE_PASSWORD != '':
+        if _ENV_DATA is not None and _ENV_DATA["SQLConfig"] is not None:
+            _ENV_DATA["SQLConfig"]["Password"] = _OVERRIDE_PASSWORD
     return _ENV_DATA
 
 
@@ -61,18 +70,18 @@ def set_env(env):
 def validate_environment(env):
     if len(env) == 0:
         env = default_env()
-        print "Running in default environment [%s]" % env
+        print("Running in default environment [%s]" % env)
     else:
         envs = [str(e["Name"]) for e in _CONFIG["Environments"]]
         if env not in envs:
-            print "Not a valid environment, environment must be in %s" % envs
+            print("Not a valid environment, environment must be in %s" % envs)
             sys.exit(2)
         if env not in ("test", "dev"):
             msg = "Are you sure you want to use the '%s' env [yes/No]? " % env
             if not confirm(msg, "yes"):
-                print "Environment not confirmed"
+                print("Environment not confirmed")
                 sys.exit(2)
-        print "Running in environment [%s]" % env
+        print("Running in environment [%s]" % env)
 
     return env
 
@@ -112,4 +121,4 @@ class ConfigError(Exception):
 
 
 def confirm(msg, confirm_response):
-    return raw_input(msg).lower() == confirm_response.lower()
+    return input(msg).lower() == confirm_response.lower()
