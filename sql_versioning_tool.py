@@ -121,10 +121,10 @@ if __name__ == '__main__':
     # load config and environment data
     config.set_script_directory(os.path.dirname(os.path.realpath(__file__)))
     config.load_config()
+    config.set_yes(yes)
     config.set_env(env)
     if overridePassword != '':
         config.set_override_password(overridePassword)
-    config.set_yes(yes)
     
     db = database.DB(config.get_env())
     # parse command
