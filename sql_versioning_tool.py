@@ -93,7 +93,7 @@ def usage():
 if __name__ == '__main__':
     try:
         long_args = ["help", "config=", "environment=", "version=", "override-password=", "yes"]
-        opts, args = getopt.getopt(sys.argv[1:], "hc:e:v:p:y:", long_args)
+        opts, args = getopt.getopt(sys.argv[1:], "hc:e:v:p:y", long_args)
     except getopt.GetoptError as err:
         print("Opt Err :", str(err))
         usage()
