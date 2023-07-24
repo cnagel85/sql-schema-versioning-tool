@@ -125,7 +125,7 @@ if __name__ == '__main__':
     config.set_env(env)
     if overridePassword != '':
         config.set_override_password(overridePassword)
-    
+
     db = database.DB(config.get_env())
     # parse command
     for cmd in args:
