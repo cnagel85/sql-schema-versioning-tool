@@ -39,6 +39,9 @@ OPTIONS
     -p override-password
         override the database password in the provided yaml config
 
+    -y yes
+        respond yes to all prompts
+
 COMMANDS
     initial
         creates a migrations folder in the location specified by the config
@@ -99,6 +102,7 @@ if __name__ == '__main__':
     version = ''
     env = ''
     overridePassword = ''
+    yes = False
     for opt, arg in opts:
         if opt in ('-h', '--help'):
             usage()
@@ -111,6 +115,8 @@ if __name__ == '__main__':
             version = arg
         if opt in ('-p', '--override-password'):
             overridePassword = arg
+        if opt in ('-y', '--yes'):
+            yes = True
 
     # load config and environment data
     config.set_script_directory(os.path.dirname(os.path.realpath(__file__)))
@@ -118,7 +124,8 @@ if __name__ == '__main__':
     config.set_env(env)
     if overridePassword != '':
         config.set_override_password(overridePassword)
-
+    config.set_yes(yes)
+    
     db = database.DB(config.get_env())
     # parse command
     for cmd in args:
