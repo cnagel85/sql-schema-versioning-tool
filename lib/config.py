@@ -10,6 +10,7 @@ _CONFIG = {}
 _ENVIRONMENT = "dev"
 _ENV_DATA = None
 _OVERRIDE_PASSWORD = ''
+_YES = False
 
 
 def set_script_directory(directory):
@@ -43,6 +44,10 @@ def set_override_password(password):
     global _OVERRIDE_PASSWORD
     _OVERRIDE_PASSWORD = password
 
+
+def set_yes(yes):
+    global _YES
+    _YES = yes
 
 def load_config():
     global _CONFIG
@@ -121,4 +126,6 @@ class ConfigError(Exception):
 
 
 def confirm(msg, confirm_response):
+    if _YES:
+        return True
     return input(msg).lower() == confirm_response.lower()
