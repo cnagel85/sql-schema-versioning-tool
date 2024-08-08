@@ -39,6 +39,9 @@ OPTIONS
     -p override-password
         override the database password in the provided yaml config
 
+    -y yes
+        respond yes to all prompts
+
 COMMANDS
     initial
         creates a migrations folder in the location specified by the config
@@ -89,8 +92,8 @@ def usage():
 
 if __name__ == '__main__':
     try:
-        long_args = ["help", "config=", "environment=", "version=", "override-password="]
-        opts, args = getopt.getopt(sys.argv[1:], "hc:e:v:p:", long_args)
+        long_args = ["help", "config=", "environment=", "version=", "override-password=", "yes"]
+        opts, args = getopt.getopt(sys.argv[1:], "hc:e:v:p:y", long_args)
     except getopt.GetoptError as err:
         print("Opt Err :", str(err))
         usage()
@@ -99,6 +102,7 @@ if __name__ == '__main__':
     version = ''
     env = ''
     overridePassword = ''
+    yes = False
     for opt, arg in opts:
         if opt in ('-h', '--help'):
             usage()
@@ -111,10 +115,13 @@ if __name__ == '__main__':
             version = arg
         if opt in ('-p', '--override-password'):
             overridePassword = arg
+        if opt in ('-y', '--yes'):
+            yes = True
 
     # load config and environment data
     config.set_script_directory(os.path.dirname(os.path.realpath(__file__)))
     config.load_config()
+    config.set_yes(yes)
     config.set_env(env)
     if overridePassword != '':
         config.set_override_password(overridePassword)

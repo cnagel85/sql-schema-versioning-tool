@@ -31,6 +31,7 @@ Postgres
 	* moved mysql and postgres specific code to their own adapter modules
 	* changed database.py to have a class DB that calls its methods using the specified adapter
 * Added support for postgres
+* Added -y option to allow CI/CD integrations
 
 ## The Future
 * Add SQLite support
