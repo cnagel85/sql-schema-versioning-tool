@@ -3,6 +3,7 @@ import MySQLdb
 import re
 import subprocess
 import platform
+from shutil import which
 
 
 class MysqlAdapter:
@@ -114,6 +115,9 @@ class MysqlAdapter:
     def create_table_dump(self, filepath):
         if platform.system() != "Linux":
             print("Table dump only implemented for linux environments.")
+            return
+        if which("mysqldump") is None:
+            print("mysqldump not installed.")
             return
         try:
             process = subprocess.Popen(
