@@ -1,6 +1,9 @@
 
 import MySQLdb
 import re
+import subprocess
+import platform
+from shutil import which
 
 
 class MysqlAdapter:
@@ -108,6 +111,34 @@ class MysqlAdapter:
             db.rollback()
             raise
         print("[INFO] Finished Excuting SQL file")
+
+    def create_table_dump(self, filepath):
+        if platform.system() != "Linux":
+            print("Table dump only implemented for linux environments.")
+            return
+        if which("mysqldump") is None:
+            print("mysqldump not installed.")
+            return
+        try:
+            process = subprocess.Popen(
+                ['mysqldump',
+                 '-u', self.user,
+                 '-p{}'.format(self.password),
+                 '-h', self.host,
+                 '-P', str(self.port),
+                 '-r', filepath,
+                 '-d',
+                 '--skip-add-drop-table',
+                 '--skip-comments',
+                 '--skip-set-charset',
+                 '--skip-opt',
+                 self.database]
+            )
+            process.communicate()[0]
+            if process.returncode != 0:
+                print('Command failed. Return code : {}'.format(process.returncode))
+        except Exception as e:
+            print(e)
 
 
 class MysqlAdapterError(Exception):

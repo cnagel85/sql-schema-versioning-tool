@@ -59,8 +59,7 @@ def load_config():
 def get_env():
     global _ENV_DATA
     if _ENV_DATA is None:
-        _ENV_DATA = next(e for e in _CONFIG["Environments"] if e[
-                         "Name"] == _ENVIRONMENT)
+        _ENV_DATA = next(e for e in _CONFIG["Environments"] if e["Name"] == _ENVIRONMENT)
     if _OVERRIDE_PASSWORD != '':
         if _ENV_DATA is not None and _ENV_DATA["SQLConfig"] is not None:
             _ENV_DATA["SQLConfig"]["Password"] = _OVERRIDE_PASSWORD
