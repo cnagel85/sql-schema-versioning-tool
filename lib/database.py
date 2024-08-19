@@ -64,7 +64,7 @@ class DB():
         for m in migrations.get_migrations():
             if m.version not in migrated:
                 m.run(self)
-        self.create_table_dump(files.filepath(config.get_migrations_dir(), "schema.lock"))
+        self.create_table_dump(files.filepath(config.get_config_dir(), "schema.lock"))
 
     def rollback(self, version):
         migratedVersions = self.adapter.get_migrated_versions()
@@ -72,7 +72,7 @@ class DB():
             print("no migrations to rollback")
             return
         migratedVersions.reverse()
-        self.create_table_dump(files.filepath(config.get_migrations_dir(), "schema.lock"))
+        self.create_table_dump(files.filepath(config.get_config_dir(), "schema.lock"))
 
         # confirm rollback version exists
         if version == '':
