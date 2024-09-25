@@ -124,7 +124,7 @@ class PGAdapter:
             print("pg_dump not installed.")
             return
         try:
-            process = subprocess.Popen(
+            pgproc = subprocess.Popen(
                 ['pg_dump',
                  '--dbname=postgresql://{}:{}@{}:{}/{}'.format(self.user, self.password, self.host, self.port, self.database),
                  '-n', "public",
@@ -133,9 +133,11 @@ class PGAdapter:
                  '-O',
                  '-x']
             )
-            process.communicate()[0]
-            if process.returncode != 0:
-                print('Command failed. Return code : {}'.format(process.returncode))
+            pgproc.communicate()[0]
+            if pgproc.returncode != 0:
+                print('Command failed. Return code : {}'.format(pgproc.returncode))
+            # Remove the header of the dump, the settings and the version.
+            subprocess.check_output(['sed', '-i', '1,22d', filepath])
         except Exception as e:
             print(e)
 
