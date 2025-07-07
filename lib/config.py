@@ -53,7 +53,7 @@ def load_config():
     global _CONFIG
     print("Loading YAML config file [%s]..." % get_filepath())
     with open(get_filepath(), 'r') as f:
-        _CONFIG = yaml.load(f)
+        _CONFIG = yaml.load(f, Loader=yaml.Loader)
 
 
 def get_env():
