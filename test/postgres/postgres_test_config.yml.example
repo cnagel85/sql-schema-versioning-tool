@@ -7,8 +7,8 @@ Environments:
     Driver: postgres
     Host: localhost
     Port: 5432
-    Database: test_db
-    User: test_user
+    Database: test
+    User: test
     Password: password
 
 DefaultEnvironment: test

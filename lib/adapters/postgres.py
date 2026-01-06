@@ -137,7 +137,7 @@ class PGAdapter:
             if pgproc.returncode != 0:
                 print('Command failed. Return code : {}'.format(pgproc.returncode))
             # Remove the header of the dump, the settings and the version.
-            subprocess.check_output(['sed', '-i', '1,22d', filepath])
+            subprocess.check_output(['sed', '-i', '/^\\\\unrestrict/d;/^\\\\restrict/d;/^-- Dumped/d', filepath])
         except Exception as e:
             print(e)
 
